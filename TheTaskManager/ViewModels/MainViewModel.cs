@@ -1,20 +1,34 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using TheTaskManager.Models;
+using TheTaskManager.Services;
 
 namespace TheTaskManager.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
+    private readonly IDialogService _dialogService;
+    private int _nextId = 6;
+
     [ObservableProperty]
     private ObservableCollection<TaskItem> _tasks = new();
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(EditTaskCommand))]
+    [NotifyCanExecuteChangedFor(nameof(DeleteTaskCommand))]
     private TaskItem? _selectedTask;
 
-    public MainViewModel()
+    public MainViewModel() : this(new DialogService())
     {
+    }
+
+    public MainViewModel(IDialogService dialogService)
+    {
+        _dialogService = dialogService;
         LoadSampleData();
     }
 
@@ -79,4 +93,53 @@ public partial class MainViewModel : ViewModelBase
             }
         };
     }
+
+    [RelayCommand]
+    private async Task AddTaskAsync()
+    {
+        var result = await _dialogService.ShowTaskEditorAsync();
+
+        if (result != null)
+        {
+            result.Id = _nextId++;
+            Tasks.Add(result);
+            SelectedTask = result;
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
+    private async Task EditTaskAsync()
+    {
+        if (SelectedTask == null) return;
+
+        var result = await _dialogService.ShowTaskEditorAsync(SelectedTask);
+
+        if (result != null)
+        {
+            var index = Tasks.IndexOf(SelectedTask);
+            if (index >= 0)
+            {
+                Tasks[index] = result;
+                SelectedTask = result;
+            }
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
+    private async Task DeleteTaskAsync()
+    {
+        if (SelectedTask == null) return;
+
+        var confirmed = await _dialogService.ShowConfirmationAsync(
+            "Удаление задачи",
+            $"Вы действительно хотите удалить задачу \"{SelectedTask.Title}\"?");
+
+        if (confirmed)
+        {
+            Tasks.Remove(SelectedTask);
+            SelectedTask = Tasks.FirstOrDefault();
+        }
+    }
+
+    private bool CanEditOrDelete() => SelectedTask != null;
 }

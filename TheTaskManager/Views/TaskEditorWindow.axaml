@@ -1,0 +1,147 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:TheTaskManager.ViewModels"
+        x:Class="TheTaskManager.Views.TaskEditorWindow"
+        x:DataType="vm:TaskEditorViewModel"
+        Title="{Binding WindowTitle}"
+        Width="500" Height="550"
+        MinWidth="450" MinHeight="500"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False">
+
+    <Window.Styles>
+        <Style Selector="TextBlock.label">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#555"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
+        
+        <Style Selector="TextBox, ComboBox, CalendarDatePicker">
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+    </Window.Styles>
+
+    <Border Background="#F9F9F9" Padding="25">
+        <Grid RowDefinitions="*,Auto">
+            
+            <ScrollViewer Grid.Row="0">
+                <StackPanel>
+                    
+                    <!-- Заголовок формы -->
+                    <Border Background="#1976D2" 
+                            CornerRadius="8" 
+                            Padding="15" 
+                            Margin="0,0,0,20">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding WindowTitle}" 
+                                       FontSize="18" 
+                                       FontWeight="Bold"
+                                       Foreground="White"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Название задачи -->
+                    <TextBlock Text="Название задачи *" Classes="label"/>
+                    <TextBox Text="{Binding Title}"
+                             Watermark="Введите название задачи..."
+                             MaxLength="200"/>
+
+                    <!-- Описание -->
+                    <TextBlock Text="Описание" Classes="label"/>
+                    <TextBox Text="{Binding Description}"
+                             Watermark="Введите описание задачи..."
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             Height="80"/>
+
+                    <!-- Исполнитель -->
+                    <TextBlock Text="Исполнитель" Classes="label"/>
+                    <ComboBox ItemsSource="{Binding Employees}"
+                              SelectedItem="{Binding AssignedTo}"
+                              PlaceholderText="Выберите исполнителя..."
+                              HorizontalAlignment="Stretch"/>
+
+                    <!-- Приоритет и Статус в одну строку -->
+                    <Grid ColumnDefinitions="*,20,*" Margin="0,0,0,15">
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Приоритет" Classes="label"/>
+                            <ComboBox ItemsSource="{Binding Priorities}"
+                                      SelectedItem="{Binding SelectedPriority}"
+                                      HorizontalAlignment="Stretch"
+                                      Margin="0">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border Width="12" Height="12" 
+                                                    CornerRadius="6"
+                                                    Background="{Binding Converter={x:Static vm:Converters.PriorityToColor}}"
+                                                    Margin="0,0,8,0"/>
+                                            <TextBlock Text="{Binding Converter={x:Static vm:Converters.PriorityToString}}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Статус" Classes="label"/>
+                            <ComboBox ItemsSource="{Binding Statuses}"
+                                      SelectedItem="{Binding SelectedStatus}"
+                                      HorizontalAlignment="Stretch"
+                                      Margin="0">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border Width="12" Height="12" 
+                                                    CornerRadius="6"
+                                                    Background="{Binding Converter={x:Static vm:Converters.StatusToColor}}"
+                                                    Margin="0,0,8,0"/>
+                                            <TextBlock Text="{Binding Converter={x:Static vm:Converters.StatusToString}}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Срок выполнения -->
+                    <TextBlock Text="Срок выполнения" Classes="label"/>
+                    <CalendarDatePicker SelectedDate="{Binding DueDate}"
+                                        HorizontalAlignment="Stretch"
+                                        Watermark="Выберите дату..."/>
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Кнопки -->
+            <Border Grid.Row="1" 
+                    BorderThickness="0,1,0,0" 
+                    BorderBrush="#E0E0E0"
+                    Padding="0,20,0,0"
+                    Margin="0,15,0,0">
+                <Grid ColumnDefinitions="*,Auto,Auto">
+                    
+                    <TextBlock Grid.Column="0" 
+                               Text="* Обязательное поле" 
+                               FontSize="11" 
+                               Foreground="#999"
+                               VerticalAlignment="Center"/>
+                    
+                    <Button Grid.Column="1"
+                            Content="Отмена"
+                            Command="{Binding CancelCommand}"
+                            Width="100"
+                            Margin="0,0,10,0"/>
+                    
+                    <Button Grid.Column="2"
+                            Content="Сохранить"
+                            Command="{Binding SaveCommand}"
+                            Width="120"
+                            Background="#1976D2"
+                            Foreground="White"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

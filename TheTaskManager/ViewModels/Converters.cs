@@ -12,6 +12,7 @@ public static class Converters
     public static readonly IValueConverter PriorityToString = new PriorityToStringConverter();
     public static readonly IValueConverter StatusToColor = new StatusToColorConverter();
     public static readonly IValueConverter StatusToString = new StatusToStringConverter();
+    public static readonly IValueConverter BoolToEditIcon = new BoolToEditIconConverter();
 }
 
 public class PriorityToColorConverter : IValueConverter
@@ -98,6 +99,21 @@ public class StatusToStringConverter : IValueConverter
             };
         }
         return "Неизвестно";
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+public class BoolToEditIconConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is bool isEdit)
+        {
+            return isEdit ? "✏️" : "➕";
+        }
+        return "➕";
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
