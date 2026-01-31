@@ -1,0 +1,195 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:TheTaskManager.ViewModels"
+             xmlns:models="using:TheTaskManager.Models"
+             x:Class="TheTaskManager.Views.MainView"
+             x:DataType="vm:MainViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Border.task-card">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="BoxShadow" Value="0 2 8 0 #20000000"/>
+        </Style>
+
+        <Style Selector="Border.task-card:pointerover">
+            <Setter Property="BoxShadow" Value="0 4 12 0 #30000000"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,*" Background="#F5F5F5">
+
+        <!-- Заголовок -->
+        <Border Grid.Row="0" Background="#1976D2" Padding="20">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel>
+                    <TextBlock Text="TheTaskManager"
+                               FontSize="28"
+                               FontWeight="Bold"
+                               Foreground="White"/>
+                    <TextBlock Text="Система управления задачами сотрудников"
+                               FontSize="14"
+                               Foreground="#B3FFFFFF"
+                               Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Всего задач: " Foreground="White" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding Tasks.Count}"
+                               Foreground="White"
+                               FontWeight="Bold"
+                               FontSize="18"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Основной контент -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,350" Margin="15">
+
+            <!-- Список задач -->
+            <Border Grid.Column="0"
+                    Background="White"
+                    CornerRadius="10"
+                    Padding="15"
+                    Margin="0,0,10,0">
+                <Grid RowDefinitions="Auto,*">
+                    <TextBlock Text="📋 Список задач"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,15"/>
+
+                    <ListBox Grid.Row="1"
+                             ItemsSource="{Binding Tasks}"
+                             SelectedItem="{Binding SelectedTask}"
+                             Background="Transparent"
+                             BorderThickness="0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="models:TaskItem">
+                                <Border Classes="task-card">
+                                    <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+
+                                        <!-- Заголовок и приоритет -->
+                                        <TextBlock Grid.Row="0"
+                                                   Text="{Binding Title}"
+                                                   FontSize="16"
+                                                   FontWeight="SemiBold"
+                                                   TextTrimming="CharacterEllipsis"/>
+
+                                        <Border Grid.Row="0" Grid.Column="1"
+                                                CornerRadius="4"
+                                                Padding="8,4"
+                                                Background="{Binding Priority, Converter={x:Static vm:Converters.PriorityToColor}}">
+                                            <TextBlock Text="{Binding Priority, Converter={x:Static vm:Converters.PriorityToString}}"
+                                                       FontSize="11"
+                                                       Foreground="White"/>
+                                        </Border>
+
+                                        <!-- Описание -->
+                                        <TextBlock Grid.Row="1" Grid.ColumnSpan="2"
+                                                   Text="{Binding Description}"
+                                                   FontSize="13"
+                                                   Foreground="#666"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Margin="0,8,0,0"/>
+
+                                        <!-- Исполнитель и дата -->
+                                        <StackPanel Grid.Row="2" Grid.ColumnSpan="2"
+                                                    Orientation="Horizontal"
+                                                    Margin="0,10,0,0">
+                                            <TextBlock Text="👤 " FontSize="12"/>
+                                            <TextBlock Text="{Binding AssignedTo}"
+                                                       FontSize="12"
+                                                       Foreground="#888"/>
+                                            <TextBlock Text="  |  📅 " FontSize="12" Foreground="#888"/>
+                                            <TextBlock Text="{Binding DueDate, StringFormat='{}{0:dd.MM.yyyy}'}"
+                                                       FontSize="12"
+                                                       Foreground="#888"/>
+                                        </StackPanel>
+
+                                        <!-- Статус -->
+                                        <Border Grid.Row="3" Grid.ColumnSpan="2"
+                                                Margin="0,10,0,0"
+                                                Background="{Binding Status, Converter={x:Static vm:Converters.StatusToColor}}"
+                                                CornerRadius="4"
+                                                Padding="8,4"
+                                                HorizontalAlignment="Left">
+                                            <TextBlock Text="{Binding Status, Converter={x:Static vm:Converters.StatusToString}}"
+                                                       FontSize="11"
+                                                       Foreground="White"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+
+            <!-- Панель деталей -->
+            <Border Grid.Column="1"
+                    Background="White"
+                    CornerRadius="10"
+                    Padding="20">
+                <Grid RowDefinitions="Auto,*">
+                    <TextBlock Text="📝 Детали задачи"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,15"/>
+
+                    <ScrollViewer Grid.Row="1">
+                        <StackPanel IsVisible="{Binding SelectedTask, Converter={x:Static ObjectConverters.IsNotNull}}">
+
+                            <TextBlock Text="Название:" FontWeight="SemiBold" Foreground="#666"/>
+                            <TextBlock Text="{Binding SelectedTask.Title}"
+                                       FontSize="16"
+                                       TextWrapping="Wrap"
+                                       Margin="0,5,0,15"/>
+
+                            <TextBlock Text="Описание:" FontWeight="SemiBold" Foreground="#666"/>
+                            <TextBlock Text="{Binding SelectedTask.Description}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,5,0,15"/>
+
+                            <TextBlock Text="Исполнитель:" FontWeight="SemiBold" Foreground="#666"/>
+                            <TextBlock Text="{Binding SelectedTask.AssignedTo}"
+                                       Margin="0,5,0,15"/>
+
+                            <TextBlock Text="Приоритет:" FontWeight="SemiBold" Foreground="#666"/>
+                            <TextBlock Text="{Binding SelectedTask.Priority, Converter={x:Static vm:Converters.PriorityToString}}"
+                                       Margin="0,5,0,15"/>
+
+                            <TextBlock Text="Статус:" FontWeight="SemiBold" Foreground="#666"/>
+                            <TextBlock Text="{Binding SelectedTask.Status, Converter={x:Static vm:Converters.StatusToString}}"
+                                       Margin="0,5,0,15"/>
+
+                            <TextBlock Text="Дата создания:" FontWeight="SemiBold" Foreground="#666"/>
+                            <TextBlock Text="{Binding SelectedTask.CreatedDate, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"
+                                       Margin="0,5,0,15"/>
+
+                            <TextBlock Text="Срок выполнения:" FontWeight="SemiBold" Foreground="#666"/>
+                            <TextBlock Text="{Binding SelectedTask.DueDate, StringFormat='{}{0:dd.MM.yyyy}'}"
+                                       Margin="0,5,0,15"/>
+
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Заглушка если задача не выбрана -->
+                    <StackPanel Grid.Row="1"
+                                IsVisible="{Binding SelectedTask, Converter={x:Static ObjectConverters.IsNull}}"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center">
+                        <TextBlock Text="📌" FontSize="48" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Выберите задачу"
+                                   FontSize="16"
+                                   Foreground="#999"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
