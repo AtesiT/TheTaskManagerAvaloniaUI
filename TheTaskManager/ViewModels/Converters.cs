@@ -13,6 +13,10 @@ public static class Converters
     public static readonly IValueConverter StatusToColor = new StatusToColorConverter();
     public static readonly IValueConverter StatusToString = new StatusToStringConverter();
     public static readonly IValueConverter BoolToEditIcon = new BoolToEditIconConverter();
+    public static readonly IValueConverter NullableStatusToString = new NullableStatusToStringConverter();
+    public static readonly IValueConverter NullablePriorityToString = new NullablePriorityToStringConverter();
+    public static readonly IValueConverter NullableEmployeeToString = new NullableEmployeeToStringConverter();
+    public static readonly IValueConverter SortOptionToString = new SortOptionToStringConverter();
 }
 
 public class PriorityToColorConverter : IValueConverter
@@ -114,6 +118,92 @@ public class BoolToEditIconConverter : IValueConverter
             return isEdit ? "✏️" : "➕";
         }
         return "➕";
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+// Новые конвертеры для фильтров
+public class NullableStatusToStringConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is TaskItemStatus status)
+        {
+            return status switch
+            {
+                TaskItemStatus.New => "Новая",
+                TaskItemStatus.InProgress => "В работе",
+                TaskItemStatus.OnHold => "Приостановлена",
+                TaskItemStatus.Completed => "Завершена",
+                TaskItemStatus.Cancelled => "Отменена",
+                _ => "Все статусы"
+            };
+        }
+        return "Все статусы";
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+public class NullablePriorityToStringConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is TaskPriority priority)
+        {
+            return priority switch
+            {
+                TaskPriority.Low => "Низкий",
+                TaskPriority.Medium => "Средний",
+                TaskPriority.High => "Высокий",
+                TaskPriority.Critical => "Критический",
+                _ => "Все приоритеты"
+            };
+        }
+        return "Все приоритеты";
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+public class NullableEmployeeToStringConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is string employee && !string.IsNullOrEmpty(employee))
+        {
+            return employee;
+        }
+        return "Все сотрудники";
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+public class SortOptionToStringConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is SortOption sort)
+        {
+            return sort switch
+            {
+                SortOption.DueDateAsc => "📅 Срок (сначала ближайшие)",
+                SortOption.DueDateDesc => "📅 Срок (сначала дальние)",
+                SortOption.PriorityDesc => "🔥 Приоритет (сначала высокий)",
+                SortOption.PriorityAsc => "🔥 Приоритет (сначала низкий)",
+                SortOption.StatusAsc => "📊 Статус",
+                SortOption.CreatedDateDesc => "🕐 Дата создания (новые)",
+                SortOption.TitleAsc => "🔤 По названию",
+                _ => "Сортировка"
+            };
+        }
+        return "Сортировка";
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
