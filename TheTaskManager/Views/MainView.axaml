@@ -75,7 +75,7 @@
                             Orientation="Horizontal" 
                             VerticalAlignment="Center"
                             Spacing="5">
-                    
+    
                     <Button Classes="toolbar-btn"
                             Command="{Binding AddTaskCommand}"
                             ToolTip.Tip="Добавить задачу">
@@ -84,7 +84,7 @@
                             <TextBlock Text="Добавить" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    
+    
                     <Button Classes="toolbar-btn"
                             Command="{Binding EditTaskCommand}"
                             ToolTip.Tip="Редактировать задачу">
@@ -93,13 +93,24 @@
                             <TextBlock Text="Изменить" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    
+    
                     <Button Classes="toolbar-btn"
                             Command="{Binding DeleteTaskCommand}"
                             ToolTip.Tip="Удалить задачу">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <TextBlock Text="🗑️" FontSize="16"/>
                             <TextBlock Text="Удалить" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+    
+                    <Border Width="1" Background="#FFFFFF50" Margin="10,5"/>
+    
+                    <Button Classes="toolbar-btn"
+                            Command="{Binding ManageEmployeesCommand}"
+                            ToolTip.Tip="Управление сотрудниками">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="👥" FontSize="16"/>
+                            <TextBlock Text="Сотрудники" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>

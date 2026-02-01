@@ -13,12 +13,16 @@ namespace TheTaskManager.ViewModels;
 public partial class MainViewModel : ViewModelBase
 {
     private readonly IDialogService _dialogService;
-    private int _nextId = 6;
+    private readonly IDataService _dataService;
 
-    // Полный список задач (источник данных)
+    private int _nextTaskId = 1;
+    private int _nextEmployeeId = 1;
+
     private List<TaskItem> _allTasks = new();
 
-    // Отфильтрованный список для отображения
+    [ObservableProperty]
+    private ObservableCollection<Employee> _employees = new();
+
     [ObservableProperty]
     private ObservableCollection<TaskItem> _tasks = new();
 
@@ -55,10 +59,10 @@ public partial class MainViewModel : ViewModelBase
 
     partial void OnSelectedSortChanged(SortOption value) => ApplyFilters();
 
-    // === СПИСКИ ДЛЯ COMBOBOX ===
+    // === СПИСКИ ===
     public List<TaskItemStatus?> StatusFilters { get; } = new()
     {
-        null, // Все
+        null,
         TaskItemStatus.New,
         TaskItemStatus.InProgress,
         TaskItemStatus.OnHold,
@@ -68,14 +72,15 @@ public partial class MainViewModel : ViewModelBase
 
     public List<TaskPriority?> PriorityFilters { get; } = new()
     {
-        null, // Все
+        null,
         TaskPriority.Low,
         TaskPriority.Medium,
         TaskPriority.High,
         TaskPriority.Critical
     };
 
-    public List<string?> EmployeeFilters { get; private set; } = new() { null };
+    [ObservableProperty]
+    private List<string?> _employeeFilters = new() { null };
 
     public List<SortOption> SortOptions { get; } = new()
     {
@@ -104,111 +109,78 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private int _completedCount;
 
-    public MainViewModel() : this(new DialogService())
+    [ObservableProperty]
+    private string _dataFilePath = string.Empty;
+
+    [ObservableProperty]
+    private bool _isLoading;
+
+    public MainViewModel() : this(new DialogService(), new DataService())
     {
     }
 
-    public MainViewModel(IDialogService dialogService)
+    public MainViewModel(IDialogService dialogService, IDataService dataService)
     {
         _dialogService = dialogService;
-        LoadSampleData();
-        UpdateEmployeeFilters();
-        ApplyFilters();
+        _dataService = dataService;
+        DataFilePath = _dataService.GetDataFilePath();
+
+        // Загрузка данных при старте
+        _ = LoadDataAsync();
     }
 
-    private void LoadSampleData()
+    private async Task LoadDataAsync()
     {
-        _allTasks = new List<TaskItem>
+        IsLoading = true;
+
+        try
         {
-            new TaskItem
-            {
-                Id = 1,
-                Title = "Подготовить отчёт",
-                Description = "Подготовить квартальный отчёт по продажам",
-                CreatedDate = DateTime.Now.AddDays(-5),
-                DueDate = DateTime.Now.AddDays(2),
-                Priority = TaskPriority.High,
-                Status = TaskItemStatus.InProgress,
-                AssignedTo = "Иванов И.И."
-            },
-            new TaskItem
-            {
-                Id = 2,
-                Title = "Провести совещание",
-                Description = "Еженедельное совещание команды разработки",
-                CreatedDate = DateTime.Now.AddDays(-2),
-                DueDate = DateTime.Now.AddDays(1),
-                Priority = TaskPriority.Medium,
-                Status = TaskItemStatus.New,
-                AssignedTo = "Петров П.П."
-            },
-            new TaskItem
-            {
-                Id = 3,
-                Title = "Обновить документацию",
-                Description = "Обновить техническую документацию проекта",
-                CreatedDate = DateTime.Now.AddDays(-10),
-                DueDate = DateTime.Now.AddDays(7),
-                Priority = TaskPriority.Low,
-                Status = TaskItemStatus.New,
-                AssignedTo = "Сидоров С.С."
-            },
-            new TaskItem
-            {
-                Id = 4,
-                Title = "Исправить критический баг",
-                Description = "Срочно исправить ошибку в модуле авторизации",
-                CreatedDate = DateTime.Now,
-                DueDate = DateTime.Now,
-                Priority = TaskPriority.Critical,
-                Status = TaskItemStatus.InProgress,
-                AssignedTo = "Козлов К.К."
-            },
-            new TaskItem
-            {
-                Id = 5,
-                Title = "Тестирование новой версии",
-                Description = "Провести полное тестирование версии 2.0",
-                CreatedDate = DateTime.Now.AddDays(-3),
-                DueDate = DateTime.Now.AddDays(5),
-                Priority = TaskPriority.High,
-                Status = TaskItemStatus.OnHold,
-                AssignedTo = "Новикова Н.Н."
-            },
-            new TaskItem
-            {
-                Id = 6,
-                Title = "Внедрение CI/CD",
-                Description = "Настроить автоматическую сборку и деплой",
-                CreatedDate = DateTime.Now.AddDays(-7),
-                DueDate = DateTime.Now.AddDays(-1),
-                Priority = TaskPriority.High,
-                Status = TaskItemStatus.Completed,
-                AssignedTo = "Иванов И.И."
-            }
+            var data = await _dataService.LoadDataAsync();
+
+            _allTasks = data.Tasks;
+            _nextTaskId = data.NextTaskId;
+            _nextEmployeeId = data.NextEmployeeId;
+
+            Employees = new ObservableCollection<Employee>(data.Employees);
+
+            UpdateEmployeeFilters();
+            ApplyFilters();
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task SaveDataAsync()
+    {
+        var data = new AppData
+        {
+            Tasks = _allTasks,
+            Employees = Employees.ToList(),
+            NextTaskId = _nextTaskId,
+            NextEmployeeId = _nextEmployeeId
         };
-        _nextId = 7;
+
+        await _dataService.SaveDataAsync(data);
     }
 
     private void UpdateEmployeeFilters()
     {
-        var employees = _allTasks
-            .Where(t => !string.IsNullOrEmpty(t.AssignedTo))
-            .Select(t => t.AssignedTo)
-            .Distinct()
+        var employees = Employees
+            .Where(e => e.IsActive)
+            .Select(e => e.FullName)
             .OrderBy(e => e)
             .ToList();
 
         EmployeeFilters = new List<string?> { null };
         EmployeeFilters.AddRange(employees!);
-        OnPropertyChanged(nameof(EmployeeFilters));
     }
 
     private void ApplyFilters()
     {
         var filtered = _allTasks.AsEnumerable();
 
-        // Поиск по тексту
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
             var search = SearchText.ToLower();
@@ -218,25 +190,21 @@ public partial class MainViewModel : ViewModelBase
                 t.AssignedTo.ToLower().Contains(search));
         }
 
-        // Фильтр по статусу
         if (FilterStatus.HasValue)
         {
             filtered = filtered.Where(t => t.Status == FilterStatus.Value);
         }
 
-        // Фильтр по приоритету
         if (FilterPriority.HasValue)
         {
             filtered = filtered.Where(t => t.Priority == FilterPriority.Value);
         }
 
-        // Фильтр по исполнителю
         if (!string.IsNullOrEmpty(FilterEmployee))
         {
             filtered = filtered.Where(t => t.AssignedTo == FilterEmployee);
         }
 
-        // Сортировка
         filtered = SelectedSort switch
         {
             SortOption.DueDateAsc => filtered.OrderBy(t => t.DueDate ?? DateTime.MaxValue),
@@ -250,11 +218,8 @@ public partial class MainViewModel : ViewModelBase
         };
 
         Tasks = new ObservableCollection<TaskItem>(filtered);
-
-        // Обновляем статистику
         UpdateStatistics();
 
-        // Сохраняем выбранную задачу если она есть в отфильтрованном списке
         if (SelectedTask != null && !Tasks.Contains(SelectedTask))
         {
             SelectedTask = Tasks.FirstOrDefault();
@@ -283,15 +248,16 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private async Task AddTaskAsync()
     {
-        var result = await _dialogService.ShowTaskEditorAsync();
+        var result = await _dialogService.ShowTaskEditorAsync(null, Employees);
 
         if (result != null)
         {
-            result.Id = _nextId++;
+            result.Id = _nextTaskId++;
             _allTasks.Add(result);
             UpdateEmployeeFilters();
             ApplyFilters();
             SelectedTask = result;
+            await SaveDataAsync();
         }
     }
 
@@ -300,7 +266,7 @@ public partial class MainViewModel : ViewModelBase
     {
         if (SelectedTask == null) return;
 
-        var result = await _dialogService.ShowTaskEditorAsync(SelectedTask);
+        var result = await _dialogService.ShowTaskEditorAsync(SelectedTask, Employees);
 
         if (result != null)
         {
@@ -311,6 +277,7 @@ public partial class MainViewModel : ViewModelBase
                 UpdateEmployeeFilters();
                 ApplyFilters();
                 SelectedTask = result;
+                await SaveDataAsync();
             }
         }
     }
@@ -330,13 +297,28 @@ public partial class MainViewModel : ViewModelBase
             UpdateEmployeeFilters();
             ApplyFilters();
             SelectedTask = Tasks.FirstOrDefault();
+            await SaveDataAsync();
+        }
+    }
+
+    [RelayCommand]
+    private async Task ManageEmployeesAsync()
+    {
+        var (hasChanges, updatedEmployees) = await _dialogService.ShowEmployeesWindowAsync(
+            Employees,
+            () => _nextEmployeeId++);
+
+        if (hasChanges)
+        {
+            Employees = updatedEmployees;
+            UpdateEmployeeFilters();
+            await SaveDataAsync();
         }
     }
 
     private bool CanEditOrDelete() => SelectedTask != null;
 }
 
-// Варианты сортировки
 public enum SortOption
 {
     DueDateAsc,

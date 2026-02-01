@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Layout;
 using Avalonia.Media;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using TheTaskManager.Models;
 using TheTaskManager.ViewModels;
@@ -12,8 +13,10 @@ namespace TheTaskManager.Services;
 
 public interface IDialogService
 {
-    Task<TaskItem?> ShowTaskEditorAsync(TaskItem? task = null);
+    Task<TaskItem?> ShowTaskEditorAsync(TaskItem? task = null, ObservableCollection<Employee>? employees = null);
     Task<bool> ShowConfirmationAsync(string title, string message);
+    Task<(bool hasChanges, ObservableCollection<Employee> employees)> ShowEmployeesWindowAsync(
+        ObservableCollection<Employee> employees, System.Func<int> getNextId);
 }
 
 public class DialogService : IDialogService
@@ -27,12 +30,12 @@ public class DialogService : IDialogService
         return null;
     }
 
-    public async Task<TaskItem?> ShowTaskEditorAsync(TaskItem? task = null)
+    public async Task<TaskItem?> ShowTaskEditorAsync(TaskItem? task = null, ObservableCollection<Employee>? employees = null)
     {
         var mainWindow = GetMainWindow();
         if (mainWindow == null) return null;
 
-        var viewModel = new TaskEditorViewModel(task);
+        var viewModel = new TaskEditorViewModel(task, employees);
         var dialog = new TaskEditorWindow
         {
             DataContext = viewModel
@@ -121,5 +124,27 @@ public class DialogService : IDialogService
 
         await messageBox.ShowDialog(mainWindow);
         return dialogResult;
+    }
+
+    public async Task<(bool hasChanges, ObservableCollection<Employee> employees)> ShowEmployeesWindowAsync(
+        ObservableCollection<Employee> employees, System.Func<int> getNextId)
+    {
+        var mainWindow = GetMainWindow();
+        if (mainWindow == null)
+            return (false, employees);
+
+        var viewModel = new EmployeesViewModel(employees)
+        {
+            GetNextIdFunc = getNextId
+        };
+
+        var dialog = new EmployeesWindow
+        {
+            DataContext = viewModel
+        };
+
+        await dialog.ShowDialog(mainWindow);
+
+        return (viewModel.HasChanges, viewModel.GetAllEmployees());
     }
 }

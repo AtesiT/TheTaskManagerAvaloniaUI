@@ -1,9 +1,9 @@
-﻿using Avalonia;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using TheTaskManager.Models;
 
 namespace TheTaskManager.ViewModels;
@@ -32,7 +32,7 @@ public partial class TaskEditorViewModel : ViewModelBase
     private TaskItemStatus _selectedStatus = TaskItemStatus.New;
 
     [ObservableProperty]
-    private string _assignedTo = string.Empty;
+    private Employee? _selectedEmployee;
 
     [ObservableProperty]
     private DateTime _createdDate = DateTime.Now;
@@ -60,22 +60,18 @@ public partial class TaskEditorViewModel : ViewModelBase
         TaskItemStatus.Cancelled
     };
 
-    // Список сотрудников (в будущем можно загружать из БД)
-    public List<string> Employees { get; } = new()
-    {
-        "Иванов И.И.",
-        "Петров П.П.",
-        "Сидоров С.С.",
-        "Козлов К.К.",
-        "Новикова Н.Н.",
-        "Смирнов С.С.",
-        "Кузнецова А.А."
-    };
+    [ObservableProperty]
+    private ObservableCollection<Employee> _employees = new();
 
     public Action<bool>? CloseAction { get; set; }
 
-    public TaskEditorViewModel(TaskItem? existingTask = null)
+    public TaskEditorViewModel(TaskItem? existingTask = null, ObservableCollection<Employee>? employees = null)
     {
+        if (employees != null)
+        {
+            Employees = new ObservableCollection<Employee>(employees.Where(e => e.IsActive));
+        }
+
         if (existingTask != null)
         {
             IsEditMode = true;
@@ -89,8 +85,10 @@ public partial class TaskEditorViewModel : ViewModelBase
                 : null;
             SelectedPriority = existingTask.Priority;
             SelectedStatus = existingTask.Status;
-            AssignedTo = existingTask.AssignedTo;
             CreatedDate = existingTask.CreatedDate;
+
+            // Находим сотрудника по имени
+            SelectedEmployee = Employees.FirstOrDefault(e => e.FullName == existingTask.AssignedTo);
         }
     }
 
@@ -110,7 +108,7 @@ public partial class TaskEditorViewModel : ViewModelBase
             DueDate = DueDate?.DateTime,
             Priority = SelectedPriority,
             Status = SelectedStatus,
-            AssignedTo = AssignedTo ?? string.Empty,
+            AssignedTo = SelectedEmployee?.FullName ?? string.Empty,
             CreatedDate = IsEditMode ? CreatedDate : DateTime.Now
         };
 
