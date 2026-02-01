@@ -19,6 +19,8 @@
       <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="ClosedXML" />
     <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="QuestPDF" />
   </ItemGroup>
 </Project>

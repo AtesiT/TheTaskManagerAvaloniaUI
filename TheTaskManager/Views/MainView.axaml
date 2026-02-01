@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:TheTaskManager.ViewModels"
              xmlns:models="using:TheTaskManager.Models"
+             xmlns:services="using:TheTaskManager.Services"
              x:Class="TheTaskManager.Views.MainView"
              x:DataType="vm:MainViewModel">
 
@@ -52,6 +53,13 @@
             <Setter Property="MinWidth" Value="150"/>
             <Setter Property="Margin" Value="0,0,10,0"/>
         </Style>
+        
+        <Style Selector="Border.notification-item">
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
     </UserControl.Styles>
 
     <Grid RowDefinitions="Auto,Auto,Auto,*" Background="#F5F5F5">
@@ -75,7 +83,7 @@
                             Orientation="Horizontal" 
                             VerticalAlignment="Center"
                             Spacing="5">
-    
+                    
                     <Button Classes="toolbar-btn"
                             Command="{Binding AddTaskCommand}"
                             ToolTip.Tip="Добавить задачу">
@@ -84,7 +92,7 @@
                             <TextBlock Text="Добавить" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-    
+                    
                     <Button Classes="toolbar-btn"
                             Command="{Binding EditTaskCommand}"
                             ToolTip.Tip="Редактировать задачу">
@@ -93,7 +101,7 @@
                             <TextBlock Text="Изменить" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-    
+                    
                     <Button Classes="toolbar-btn"
                             Command="{Binding DeleteTaskCommand}"
                             ToolTip.Tip="Удалить задачу">
@@ -102,9 +110,9 @@
                             <TextBlock Text="Удалить" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-    
+                    
                     <Border Width="1" Background="#FFFFFF50" Margin="10,5"/>
-    
+                    
                     <Button Classes="toolbar-btn"
                             Command="{Binding ManageEmployeesCommand}"
                             ToolTip.Tip="Управление сотрудниками">
@@ -113,12 +121,62 @@
                             <TextBlock Text="Сотрудники" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
+                    
+                    <Border Width="1" Background="#FFFFFF50" Margin="10,5"/>
+                    
+                    <!-- Экспорт -->
+                    <Button Classes="toolbar-btn"
+                            Command="{Binding ExportToExcelCommand}"
+                            ToolTip.Tip="Экспорт в Excel">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="📊" FontSize="16"/>
+                            <TextBlock Text="Excel" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Classes="toolbar-btn"
+                            Command="{Binding ExportToPdfCommand}"
+                            ToolTip.Tip="Экспорт в PDF">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="📄" FontSize="16"/>
+                            <TextBlock Text="PDF" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Border Width="1" Background="#FFFFFF50" Margin="10,5"/>
+                    
+                    <!-- Уведомления -->
+                    <Button Classes="toolbar-btn"
+                            Command="{Binding ToggleNotificationsCommand}"
+                            ToolTip.Tip="Показать/скрыть уведомления">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="🔔" FontSize="16"/>
+                            <Border Background="#F44336" 
+                                    CornerRadius="10" 
+                                    Padding="6,2"
+                                    IsVisible="{Binding OverdueCount}">
+                                <TextBlock Text="{Binding OverdueCount}" 
+                                           FontSize="11" 
+                                           Foreground="White"/>
+                            </Border>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
 
+        <!-- Статус экспорта -->
+        <Border Grid.Row="1" 
+                Background="#E8F5E9" 
+                Padding="15,10"
+                IsVisible="{Binding ExportStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+            <TextBlock Text="{Binding ExportStatus}" 
+                       Foreground="#2E7D32"
+                       FontWeight="SemiBold"/>
+        </Border>
+
         <!-- Статистика -->
-        <Border Grid.Row="1" Background="#E3F2FD" Padding="15,10">
+        <Border Grid.Row="2" Background="#E3F2FD" Padding="15,10">
             <Grid ColumnDefinitions="*,*,*,*,*">
                 <Border Classes="stat-card" Grid.Column="0">
                     <StackPanel HorizontalAlignment="Center">
@@ -182,202 +240,273 @@
             </Grid>
         </Border>
 
-        <!-- Панель фильтров -->
-        <Border Grid.Row="2" Background="White" Padding="15" Margin="15,15,15,0"
-                CornerRadius="10">
-            <Grid RowDefinitions="Auto,Auto">
-                
-                <!-- Первая строка: поиск и сортировка -->
-                <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,10">
-                    <TextBox Grid.Column="0"
-                             Text="{Binding SearchText}"
-                             Watermark="🔍 Поиск по названию, описанию или исполнителю..."
-                             Margin="0,0,15,0"/>
-                    
-                    <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <TextBlock Text="Сортировка:" 
-                                   VerticalAlignment="Center" 
-                                   Margin="0,0,10,0"
-                                   Foreground="#666"/>
-                        <ComboBox ItemsSource="{Binding SortOptions}"
-                                  SelectedItem="{Binding SelectedSort}"
-                                  MinWidth="220">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Converter={x:Static vm:Converters.SortOptionToString}}"/>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                    </StackPanel>
-                </Grid>
-                
-                <!-- Вторая строка: фильтры -->
-                <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto">
-                    
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,15,0">
-                        <TextBlock Text="Статус:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#666"/>
-                        <ComboBox Classes="filter-combo"
-                                  ItemsSource="{Binding StatusFilters}"
-                                  SelectedItem="{Binding FilterStatus}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Converter={x:Static vm:Converters.NullableStatusToString}}"/>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                    </StackPanel>
-                    
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,15,0">
-                        <TextBlock Text="Приоритет:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#666"/>
-                        <ComboBox Classes="filter-combo"
-                                  ItemsSource="{Binding PriorityFilters}"
-                                  SelectedItem="{Binding FilterPriority}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Converter={x:Static vm:Converters.NullablePriorityToString}}"/>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                    </StackPanel>
-                    
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,15,0">
-                        <TextBlock Text="Исполнитель:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#666"/>
-                        <ComboBox Classes="filter-combo"
-                                  ItemsSource="{Binding EmployeeFilters}"
-                                  SelectedItem="{Binding FilterEmployee}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Converter={x:Static vm:Converters.NullableEmployeeToString}}"/>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                    </StackPanel>
-                    
-                    <Button Grid.Column="5"
-                            Content="✖ Сбросить фильтры"
-                            Command="{Binding ClearFiltersCommand}"
-                            Background="#F5F5F5"
-                            Padding="12,8"
-                            CornerRadius="4"/>
-                </Grid>
-            </Grid>
-        </Border>
-
         <!-- Основной контент -->
-        <Grid Grid.Row="3" ColumnDefinitions="*,350" Margin="15">
+        <Grid Grid.Row="3" ColumnDefinitions="*,Auto,350" Margin="15">
 
-            <!-- Список задач -->
-            <Border Grid.Column="0"
-                    Background="White"
-                    CornerRadius="10"
-                    Padding="15"
-                    Margin="0,0,10,0">
-                <Grid RowDefinitions="Auto,*">
-                    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,15">
-                        <TextBlock Text="📋 Список задач"
-                                   FontSize="18"
-                                   FontWeight="SemiBold"/>
+            <!-- Левая панель: фильтры + список -->
+            <Grid Grid.Column="0" RowDefinitions="Auto,*" Margin="0,0,10,0">
+                
+                <!-- Панель фильтров -->
+                <Border Grid.Row="0" Background="White" Padding="15" CornerRadius="10" Margin="0,0,0,10">
+                    <Grid RowDefinitions="Auto,Auto">
                         
-                        <Button Grid.Column="1"
-                                Content="+ Новая задача"
-                                Command="{Binding AddTaskCommand}"
-                                Background="#4CAF50"
-                                Foreground="White"
-                                Padding="12,6"
-                                CornerRadius="4"
-                                FontSize="12"/>
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding SearchText}"
+                                     Watermark="🔍 Поиск по названию, описанию или исполнителю..."
+                                     Margin="0,0,15,0"/>
+                            
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="Сортировка:" 
+                                           VerticalAlignment="Center" 
+                                           Margin="0,0,10,0"
+                                           Foreground="#666"/>
+                                <ComboBox ItemsSource="{Binding SortOptions}"
+                                          SelectedItem="{Binding SelectedSort}"
+                                          MinWidth="220">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Converter={x:Static vm:Converters.SortOptionToString}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+                            
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,15,0">
+                                <TextBlock Text="Статус:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#666"/>
+                                <ComboBox Classes="filter-combo"
+                                          ItemsSource="{Binding StatusFilters}"
+                                          SelectedItem="{Binding FilterStatus}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Converter={x:Static vm:Converters.NullableStatusToString}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,15,0">
+                                <TextBlock Text="Приоритет:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#666"/>
+                                <ComboBox Classes="filter-combo"
+                                          ItemsSource="{Binding PriorityFilters}"
+                                          SelectedItem="{Binding FilterPriority}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Converter={x:Static vm:Converters.NullablePriorityToString}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,15,0">
+                                <TextBlock Text="Исполнитель:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#666"/>
+                                <ComboBox Classes="filter-combo"
+                                          ItemsSource="{Binding EmployeeFilters}"
+                                          SelectedItem="{Binding FilterEmployee}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Converter={x:Static vm:Converters.NullableEmployeeToString}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+                            
+                            <Button Grid.Column="5"
+                                    Content="✖ Сбросить"
+                                    Command="{Binding ClearFiltersCommand}"
+                                    Background="#F5F5F5"
+                                    Padding="12,8"
+                                    CornerRadius="4"/>
+                        </Grid>
                     </Grid>
+                </Border>
 
-                    <!-- Список или заглушка "нет задач" -->
-                    <Panel Grid.Row="1">
-                        <ListBox ItemsSource="{Binding Tasks}"
-                                 SelectedItem="{Binding SelectedTask}"
-                                 Background="Transparent"
-                                 BorderThickness="0"
-                                 IsVisible="{Binding Tasks.Count}"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate x:DataType="models:TaskItem">
-                                    <Border Classes="task-card">
-                                        <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+                <!-- Список задач -->
+                <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="15">
+                    <Grid RowDefinitions="Auto,*">
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,15">
+                            <TextBlock Text="📋 Список задач"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"/>
+                            
+                            <Button Grid.Column="1"
+                                    Content="+ Новая задача"
+                                    Command="{Binding AddTaskCommand}"
+                                    Background="#4CAF50"
+                                    Foreground="White"
+                                    Padding="12,6"
+                                    CornerRadius="4"
+                                    FontSize="12"/>
+                        </Grid>
 
-                                            <TextBlock Grid.Row="0"
-                                                       Text="{Binding Title}"
-                                                       FontSize="16"
-                                                       FontWeight="SemiBold"
-                                                       TextTrimming="CharacterEllipsis"/>
+                        <Panel Grid.Row="1">
+                            <ListBox ItemsSource="{Binding Tasks}"
+                                     SelectedItem="{Binding SelectedTask}"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     IsVisible="{Binding Tasks.Count}"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="models:TaskItem">
+                                        <Border Classes="task-card">
+                                            <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,Auto">
 
-                                            <Border Grid.Row="0" Grid.Column="1"
-                                                    CornerRadius="4"
-                                                    Padding="8,4"
-                                                    Background="{Binding Priority, Converter={x:Static vm:Converters.PriorityToColor}}">
-                                                <TextBlock Text="{Binding Priority, Converter={x:Static vm:Converters.PriorityToString}}"
-                                                           FontSize="11"
-                                                           Foreground="White"/>
-                                            </Border>
+                                                <TextBlock Grid.Row="0"
+                                                           Text="{Binding Title}"
+                                                           FontSize="16"
+                                                           FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis"/>
 
-                                            <TextBlock Grid.Row="1" Grid.ColumnSpan="2"
-                                                       Text="{Binding Description}"
-                                                       FontSize="13"
-                                                       Foreground="#666"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       Margin="0,8,0,0"/>
+                                                <Border Grid.Row="0" Grid.Column="1"
+                                                        CornerRadius="4"
+                                                        Padding="8,4"
+                                                        Background="{Binding Priority, Converter={x:Static vm:Converters.PriorityToColor}}">
+                                                    <TextBlock Text="{Binding Priority, Converter={x:Static vm:Converters.PriorityToString}}"
+                                                               FontSize="11"
+                                                               Foreground="White"/>
+                                                </Border>
 
-                                            <StackPanel Grid.Row="2" Grid.ColumnSpan="2"
-                                                        Orientation="Horizontal"
-                                                        Margin="0,10,0,0">
-                                                <TextBlock Text="👤 " FontSize="12"/>
-                                                <TextBlock Text="{Binding AssignedTo}"
-                                                           FontSize="12"
-                                                           Foreground="#888"/>
-                                                <TextBlock Text="  |  📅 " FontSize="12" Foreground="#888"/>
-                                                <TextBlock Text="{Binding DueDate, StringFormat='{}{0:dd.MM.yyyy}'}"
-                                                           FontSize="12"
-                                                           Foreground="#888"/>
-                                            </StackPanel>
+                                                <TextBlock Grid.Row="1" Grid.ColumnSpan="2"
+                                                           Text="{Binding Description}"
+                                                           FontSize="13"
+                                                           Foreground="#666"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Margin="0,8,0,0"/>
 
-                                            <Border Grid.Row="3" Grid.ColumnSpan="2"
-                                                    Margin="0,10,0,0"
-                                                    Background="{Binding Status, Converter={x:Static vm:Converters.StatusToColor}}"
-                                                    CornerRadius="4"
-                                                    Padding="8,4"
-                                                    HorizontalAlignment="Left">
-                                                <TextBlock Text="{Binding Status, Converter={x:Static vm:Converters.StatusToString}}"
-                                                           FontSize="11"
-                                                           Foreground="White"/>
-                                            </Border>
-                                        </Grid>
+                                                <StackPanel Grid.Row="2" Grid.ColumnSpan="2"
+                                                            Orientation="Horizontal"
+                                                            Margin="0,10,0,0">
+                                                    <TextBlock Text="👤 " FontSize="12"/>
+                                                    <TextBlock Text="{Binding AssignedTo}"
+                                                               FontSize="12"
+                                                               Foreground="#888"/>
+                                                    <TextBlock Text="  |  📅 " FontSize="12" Foreground="#888"/>
+                                                    <TextBlock Text="{Binding DueDate, StringFormat='{}{0:dd.MM.yyyy}'}"
+                                                               FontSize="12"
+                                                               Foreground="#888"/>
+                                                </StackPanel>
+
+                                                <Border Grid.Row="3" Grid.ColumnSpan="2"
+                                                        Margin="0,10,0,0"
+                                                        Background="{Binding Status, Converter={x:Static vm:Converters.StatusToColor}}"
+                                                        CornerRadius="4"
+                                                        Padding="8,4"
+                                                        HorizontalAlignment="Left">
+                                                    <TextBlock Text="{Binding Status, Converter={x:Static vm:Converters.StatusToString}}"
+                                                               FontSize="11"
+                                                               Foreground="White"/>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            
+                            <StackPanel VerticalAlignment="Center" 
+                                        HorizontalAlignment="Center"
+                                        IsVisible="{Binding !Tasks.Count}">
+                                <TextBlock Text="🔍" FontSize="48" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Задачи не найдены"
+                                           FontSize="18"
+                                           Foreground="#999"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,10,0,5"/>
+                                <TextBlock Text="Попробуйте изменить параметры фильтрации"
+                                           FontSize="13"
+                                           Foreground="#BBB"
+                                           HorizontalAlignment="Center"/>
+                                <Button Content="Сбросить фильтры"
+                                        Command="{Binding ClearFiltersCommand}"
+                                        Margin="0,15,0,0"
+                                        HorizontalAlignment="Center"
+                                        Padding="15,8"/>
+                            </StackPanel>
+                        </Panel>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Панель уведомлений -->
+            <Border Grid.Column="1" 
+                    Background="White" 
+                    CornerRadius="10" 
+                    Padding="15"
+                    Width="280"
+                    Margin="0,0,10,0"
+                    IsVisible="{Binding ShowNotifications}">
+                <Grid RowDefinitions="Auto,*">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                        <TextBlock Text="🔔 Уведомления"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"/>
+                        <Border Background="#F44336" 
+                                CornerRadius="10" 
+                                Padding="8,2"
+                                Margin="10,0,0,0"
+                                IsVisible="{Binding Notifications.Count}">
+                            <TextBlock Text="{Binding Notifications.Count}" 
+                                       FontSize="11" 
+                                       Foreground="White"/>
+                        </Border>
+                    </StackPanel>
+                    
+                    <ScrollViewer Grid.Row="1">
+                        <ItemsControl ItemsSource="{Binding Notifications}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="services:TaskNotification">
+                                    <Border Classes="notification-item"
+                                            Background="{Binding Type, Converter={x:Static vm:Converters.NotificationTypeToColor}}">
+                                        <Button Command="{Binding $parent[ItemsControl].((vm:MainViewModel)DataContext).SelectTaskFromNotificationCommand}"
+                                                CommandParameter="{Binding}"
+                                                Background="Transparent"
+                                                Padding="0"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch">
+                                            <Grid ColumnDefinitions="Auto,*">
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding Type, Converter={x:Static vm:Converters.NotificationTypeToIcon}}"
+                                                           FontSize="20"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,10,0"/>
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="{Binding Task.Title}"
+                                                               FontWeight="SemiBold"
+                                                               FontSize="13"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Text="{Binding Message}"
+                                                               FontSize="11"
+                                                               Foreground="#666"/>
+                                                    <TextBlock Text="{Binding Task.AssignedTo}"
+                                                               FontSize="10"
+                                                               Foreground="#999"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
                                     </Border>
                                 </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                        
-                        <!-- Заглушка когда нет задач -->
-                        <StackPanel VerticalAlignment="Center" 
-                                    HorizontalAlignment="Center"
-                                    IsVisible="{Binding !Tasks.Count}">
-                            <TextBlock Text="🔍" FontSize="48" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Задачи не найдены"
-                                       FontSize="18"
-                                       Foreground="#999"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,10,0,5"/>
-                            <TextBlock Text="Попробуйте изменить параметры фильтрации"
-                                       FontSize="13"
-                                       Foreground="#BBB"
-                                       HorizontalAlignment="Center"/>
-                            <Button Content="Сбросить фильтры"
-                                    Command="{Binding ClearFiltersCommand}"
-                                    Margin="0,15,0,0"
-                                    HorizontalAlignment="Center"
-                                    Padding="15,8"/>
-                        </StackPanel>
-                    </Panel>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    
+                    <StackPanel Grid.Row="1"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center"
+                                IsVisible="{Binding !Notifications.Count}">
+                        <TextBlock Text="✅" FontSize="32" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Нет уведомлений"
+                                   FontSize="13"
+                                   Foreground="#999"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,5,0,0"/>
+                    </StackPanel>
                 </Grid>
             </Border>
 
             <!-- Панель деталей -->
-            <Border Grid.Column="1"
+            <Border Grid.Column="2"
                     Background="White"
                     CornerRadius="10"
                     Padding="20">
@@ -424,7 +553,6 @@
                         </StackPanel>
                     </ScrollViewer>
                     
-                    <!-- Кнопки действий -->
                     <StackPanel Grid.Row="2" 
                                 Orientation="Horizontal" 
                                 Spacing="10"
@@ -442,7 +570,6 @@
                                 Foreground="White"/>
                     </StackPanel>
 
-                    <!-- Заглушка -->
                     <StackPanel Grid.Row="1"
                                 IsVisible="{Binding SelectedTask, Converter={x:Static ObjectConverters.IsNull}}"
                                 VerticalAlignment="Center"

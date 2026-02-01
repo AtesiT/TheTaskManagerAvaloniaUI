@@ -3,6 +3,7 @@ using Avalonia.Media;
 using System;
 using System.Globalization;
 using TheTaskManager.Models;
+using TheTaskManager.Services;
 
 namespace TheTaskManager.ViewModels;
 
@@ -17,6 +18,8 @@ public static class Converters
     public static readonly IValueConverter NullablePriorityToString = new NullablePriorityToStringConverter();
     public static readonly IValueConverter NullableEmployeeToString = new NullableEmployeeToStringConverter();
     public static readonly IValueConverter SortOptionToString = new SortOptionToStringConverter();
+    public static readonly IValueConverter NotificationTypeToColor = new NotificationTypeToColorConverter();
+    public static readonly IValueConverter NotificationTypeToIcon = new NotificationTypeToIconConverter();
 }
 
 public class PriorityToColorConverter : IValueConverter
@@ -124,7 +127,6 @@ public class BoolToEditIconConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
-// Новые конвертеры для фильтров
 public class NullableStatusToStringConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -204,6 +206,49 @@ public class SortOptionToStringConverter : IValueConverter
             };
         }
         return "Сортировка";
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+// Новые конвертеры для уведомлений
+public class NotificationTypeToColorConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is NotificationType type)
+        {
+            return type switch
+            {
+                NotificationType.Overdue => new SolidColorBrush(Color.Parse("#FFEBEE")),
+                NotificationType.DueToday => new SolidColorBrush(Color.Parse("#FFF3E0")),
+                NotificationType.DueSoon => new SolidColorBrush(Color.Parse("#E3F2FD")),
+                _ => new SolidColorBrush(Colors.White)
+            };
+        }
+        return new SolidColorBrush(Colors.White);
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+public class NotificationTypeToIconConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is NotificationType type)
+        {
+            return type switch
+            {
+                NotificationType.Overdue => "🚨",
+                NotificationType.DueToday => "⚠️",
+                NotificationType.DueSoon => "📅",
+                _ => "ℹ️"
+            };
+        }
+        return "ℹ️";
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
