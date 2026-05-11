@@ -1,0 +1,201 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:DiplomaTaskManager"
+        x:Class="DiplomaTaskManager.MainWindow"
+        x:DataType="local:MainViewModel"
+        Title="📋 DiplomaTaskManager"
+        Width="820" Height="620"
+        MinWidth="600" MinHeight="440"
+        WindowStartupLocation="CenterScreen"
+        Background="#1E1E2E">
+
+  <Window.Styles>
+    <Style Selector="TextBlock.done">
+      <Setter Property="TextDecorations" Value="Strikethrough"/>
+      <Setter Property="Opacity"         Value="0.45"/>
+    </Style>
+
+    <Style Selector="Border.card">
+      <Setter Property="Background"   Value="#2A2A3E"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding"      Value="12,8"/>
+      <Setter Property="Margin"       Value="0,4"/>
+    </Style>
+
+    <Style Selector="TextBox.field">
+      <Setter Property="Background"   Value="#2A2A3E"/>
+      <Setter Property="Foreground"   Value="#CDD6F4"/>
+      <Setter Property="BorderBrush"  Value="#45475A"/>
+      <Setter Property="CornerRadius" Value="6"/>
+      <Setter Property="Padding"      Value="8,6"/>
+    </Style>
+
+    <Style Selector="Button.add">
+      <Setter Property="Background"   Value="#89B4FA"/>
+      <Setter Property="Foreground"   Value="#1E1E2E"/>
+      <Setter Property="FontWeight"   Value="SemiBold"/>
+      <Setter Property="CornerRadius" Value="6"/>
+      <Setter Property="Padding"      Value="16,8"/>
+      <Setter Property="Cursor"       Value="Hand"/>
+    </Style>
+    <Style Selector="Button.add:disabled /template/ ContentPresenter">
+      <Setter Property="Background"             Value="#45475A"/>
+      <Setter Property="TextElement.Foreground" Value="#6C7086"/>
+    </Style>
+
+    <Style Selector="Button.del">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="#F38BA8"/>
+      <Setter Property="Padding"    Value="6,4"/>
+      <Setter Property="Cursor"     Value="Hand"/>
+    </Style>
+  </Window.Styles>
+
+  <Grid RowDefinitions="Auto,*" Margin="16">
+
+    <Border Grid.Row="0"
+            Background="#181825"
+            CornerRadius="12"
+            Padding="16"
+            Margin="0,0,0,12">
+      <StackPanel Spacing="10">
+
+        <TextBlock Text="Новая задача"
+                   FontSize="15" FontWeight="SemiBold"
+                   Foreground="#CDD6F4"/>
+
+        <Grid ColumnDefinitions="*,12,*">
+          <StackPanel Grid.Column="0" Spacing="4">
+            <TextBlock Text="Заголовок" Foreground="#A6ADC8" FontSize="12"/>
+            <TextBox Classes="field"
+                     Text="{Binding NewTitle}"
+                     Watermark="Что нужно сделать?"/>
+          </StackPanel>
+          <StackPanel Grid.Column="2" Spacing="4">
+            <TextBlock Text="Исполнитель" Foreground="#A6ADC8" FontSize="12"/>
+            <TextBox Classes="field"
+                     Text="{Binding NewAssignee}"
+                     Watermark="Имя сотрудника"/>
+          </StackPanel>
+        </Grid>
+
+        <Grid ColumnDefinitions="*,12,Auto">
+          <StackPanel Grid.Column="0" Spacing="4">
+            <TextBlock Text="Дедлайн" Foreground="#A6ADC8" FontSize="12"/>
+            <CalendarDatePicker SelectedDate="{Binding NewDeadline}"
+                                HorizontalAlignment="Stretch"
+                                Background="#2A2A3E"
+                                Foreground="#CDD6F4"
+                                BorderBrush="#45475A"/>
+          </StackPanel>
+          <Button Grid.Column="2"
+                  Classes="add"
+                  Content="＋  Добавить"
+                  Command="{Binding AddTaskCommand}"
+                  VerticalAlignment="Bottom"/>
+        </Grid>
+
+      </StackPanel>
+    </Border>
+
+    <Border Grid.Row="1"
+            Background="#181825"
+            CornerRadius="12"
+            Padding="12">
+      <Grid RowDefinitions="Auto,*">
+
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="4,0,4,8">
+          <TextBlock Grid.Column="0"
+                     Text="Задачи"
+                     FontSize="15" FontWeight="SemiBold"
+                     Foreground="#CDD6F4"/>
+          <Border Grid.Column="1"
+                  Background="#313244" CornerRadius="10" Padding="8,2">
+            <TextBlock Foreground="#A6ADC8" FontSize="12">
+              <Run Text="{Binding Tasks.Count}"/>
+              <Run Text=" задач"/>
+            </TextBlock>
+          </Border>
+        </Grid>
+
+        <StackPanel Grid.Row="1"
+                    IsVisible="{Binding !Tasks.Count}"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Spacing="8">
+          <TextBlock Text="📭" FontSize="48" HorizontalAlignment="Center"/>
+          <TextBlock Text="Задач пока нет"
+                     Foreground="#585B70" FontSize="14"
+                     HorizontalAlignment="Center"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+          <ItemsControl ItemsSource="{Binding Tasks}">
+            <ItemsControl.ItemTemplate>
+
+              <DataTemplate DataType="local:TaskItem">
+                <Border Classes="card">
+                  <Grid ColumnDefinitions="Auto,*,Auto">
+
+                    <CheckBox Grid.Column="0"
+                              IsChecked="{Binding IsCompleted}"
+                              VerticalAlignment="Center"
+                              Margin="0,0,10,0">
+                      <CheckBox.Command>
+                        <Binding Path="DataContext.ToggleTaskCommand"
+                                 RelativeSource="{RelativeSource AncestorType=Window}"/>
+                      </CheckBox.Command>
+                      <CheckBox.CommandParameter>
+                        <Binding/>
+                      </CheckBox.CommandParameter>
+                    </CheckBox>
+
+                    <StackPanel Grid.Column="1"
+                                VerticalAlignment="Center"
+                                Spacing="3">
+                      <TextBlock Text="{Binding Title}"
+                                 FontSize="14" FontWeight="Medium"
+                                 Foreground="#CDD6F4"
+                                 Classes.done="{Binding IsCompleted}"
+                                 TextTrimming="CharacterEllipsis"/>
+                      <StackPanel Orientation="Horizontal" Spacing="14">
+                        <TextBlock FontSize="11" Foreground="#89B4FA">
+                          <Run Text="👤 "/>
+                          <Run Text="{Binding Assignee}"/>
+                        </TextBlock>
+                        <TextBlock FontSize="11" Foreground="#A6E3A1">
+                          <Run Text="📅 "/>
+                          <Run Text="{Binding Deadline,
+                                     StringFormat=\{0:dd.MM.yyyy\}}"/>
+                        </TextBlock>
+                      </StackPanel>
+                    </StackPanel>
+
+                    <Button Grid.Column="2"
+                            Classes="del"
+                            Content="🗑"
+                            FontSize="16"
+                            VerticalAlignment="Center"
+                            ToolTip.Tip="Удалить задачу">
+                      <Button.Command>
+                        <Binding Path="DataContext.DeleteTaskCommand"
+                                 RelativeSource="{RelativeSource AncestorType=Window}"/>
+                      </Button.Command>
+                      <Button.CommandParameter>
+                        <Binding/>
+                      </Button.CommandParameter>
+                    </Button>
+
+                  </Grid>
+                </Border>
+              </DataTemplate>
+
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+
+      </Grid>
+    </Border>
+
+  </Grid>
+</Window>
