@@ -13,6 +13,7 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty] private string   _newTitle    = string.Empty;
     [ObservableProperty] private string   _newAssignee = string.Empty;
+    [ObservableProperty] private string   _newDescription = string.Empty;
     [ObservableProperty] private DateTime _newDeadline = DateTime.Today.AddDays(7);
 
     public MainViewModel(AppDbContext db)
@@ -38,6 +39,7 @@ public partial class MainViewModel : ObservableObject
         {
             Title    = NewTitle.Trim(),
             Assignee = NewAssignee.Trim(),
+            Description = NewDescription.Trim(),
             Deadline = NewDeadline
         };
 
@@ -47,6 +49,7 @@ public partial class MainViewModel : ObservableObject
 
         NewTitle    = string.Empty;
         NewAssignee = string.Empty;
+        NewDescription = string.Empty;
         NewDeadline = DateTime.Today.AddDays(7);
     }
 

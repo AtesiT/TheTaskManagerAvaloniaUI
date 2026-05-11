@@ -11,6 +11,7 @@ public partial class TaskItem : ObservableObject
 
     [ObservableProperty] private string _title      = string.Empty;
     [ObservableProperty] private string _assignee   = string.Empty;
+    [ObservableProperty] private string _description = string.Empty;
     [ObservableProperty] private DateTime _deadline = DateTime.Today.AddDays(7);
     [ObservableProperty] private bool _isCompleted;
 }

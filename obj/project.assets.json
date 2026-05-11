@@ -4018,11 +4018,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Keys And Documents\\DiplomaTaskManager\\TheTaskManager.csproj",
+      "projectUniqueName": "D:\\Keys And Documents\\TheTaskManagerAvaloniaUI\\TheTaskManager.csproj",
       "projectName": "DiplomaTaskManager",
-      "projectPath": "D:\\Keys And Documents\\DiplomaTaskManager\\TheTaskManager.csproj",
+      "projectPath": "D:\\Keys And Documents\\TheTaskManagerAvaloniaUI\\TheTaskManager.csproj",
       "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "D:\\Keys And Documents\\DiplomaTaskManager\\obj\\",
+      "outputPath": "D:\\Keys And Documents\\TheTaskManagerAvaloniaUI\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "D:\\Visual Studio\\SDK\\NuGetPackages"

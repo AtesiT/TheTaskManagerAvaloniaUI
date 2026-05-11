@@ -79,6 +79,16 @@
           </StackPanel>
         </Grid>
 
+        <StackPanel Spacing="4" Margin="0,4,0,0">
+          <TextBlock Text="Описание" Foreground="#A6ADC8" FontSize="12"/>
+          <TextBox Classes="field"
+                  Text="{Binding NewDescription}"
+                  Watermark="Подробности задачи (необязательно)"
+                  Height="60"
+                  AcceptsReturn="True"
+                  TextWrapping="Wrap"/>
+        </StackPanel>
+
         <Grid ColumnDefinitions="*,12,Auto">
           <StackPanel Grid.Column="0" Spacing="4">
             <TextBlock Text="Дедлайн" Foreground="#A6ADC8" FontSize="12"/>
@@ -158,6 +168,13 @@
                                  Foreground="#CDD6F4"
                                  Classes.done="{Binding IsCompleted}"
                                  TextTrimming="CharacterEllipsis"/>
+                      <TextBlock Text="{Binding Description}"
+                                FontSize="11"
+                                Foreground="#6C7086"
+                                TextWrapping="Wrap"
+                                MaxLines="2"
+                                IsVisible="{Binding Description,
+                                Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
                       <StackPanel Orientation="Horizontal" Spacing="14">
                         <TextBlock FontSize="11" Foreground="#89B4FA">
                           <Run Text="👤 "/>

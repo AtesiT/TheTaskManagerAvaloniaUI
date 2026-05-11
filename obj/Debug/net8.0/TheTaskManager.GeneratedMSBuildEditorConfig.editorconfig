@@ -18,14 +18,14 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = DiplomaTaskManager
-build_property.ProjectDir = D:\Keys And Documents\DiplomaTaskManager\
+build_property.ProjectDir = D:\Keys And Documents\TheTaskManagerAvaloniaUI\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
-[D:/Keys And Documents/DiplomaTaskManager/App.axaml]
+[D:/Keys And Documents/TheTaskManagerAvaloniaUI/App.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[D:/Keys And Documents/DiplomaTaskManager/MainWindow.axaml]
+[D:/Keys And Documents/TheTaskManagerAvaloniaUI/MainWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
