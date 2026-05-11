@@ -1,6 +1,6 @@
 using Avalonia.Controls;
-using Avalonia.Threading;
-using Microsoft.EntityFrameworkCore;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
 
 namespace DiplomaTaskManager;
 
@@ -8,19 +8,27 @@ public partial class MainWindow : Window
 {
     public MainWindow()
     {
+        var db = AppDbContext.Create();
+        db.Database.EnsureCreated();
+
         InitializeComponent();
-        _ = InitDbAsync();
+
+        DataContext = new AppViewModel(db);
     }
 
-    private async Task InitDbAsync()
+    private void InitializeComponent()
     {
-        var db = AppDbContext.Create();
+        AvaloniaXamlLoader.Load(this);
+    }
 
-        await db.Database.EnsureCreatedAsync();
-
-        await Dispatcher.UIThread.InvokeAsync(() =>
+    private void DeleteTask_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button button && button.Tag is TaskItem task && DataContext is AppViewModel appVm)
         {
-            DataContext = new MainViewModel(db);
-        });
+            if (appVm.CurrentView is MainViewModel mainVm)
+            {
+                mainVm.DeleteTaskCommand.Execute(task);
+            }
+        }
     }
 }

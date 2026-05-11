@@ -4,9 +4,24 @@ using Avalonia.Markup.Xaml;
 
 namespace DiplomaTaskManager;
 
+internal sealed class Program
+{
+    [STAThread]
+    public static void Main(string[] args) => BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+
+    private static AppBuilder BuildAvaloniaApp() =>
+        AppBuilder.Configure<App>()
+                  .UsePlatformDetect()
+                  .WithInterFont()
+                  .LogToTrace();
+}
+
 public partial class App : Application
 {
-    public override void Initialize() => AvaloniaXamlLoader.Load(this);
+    public override void Initialize()
+    {
+        AvaloniaXamlLoader.Load(this);
+    }
 
     public override void OnFrameworkInitializationCompleted()
     {
@@ -15,17 +30,4 @@ public partial class App : Application
 
         base.OnFrameworkInitializationCompleted();
     }
-}
-
-internal sealed class Program
-{
-    [STAThread]
-    public static void Main(string[] args) =>
-        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
-
-    private static AppBuilder BuildAvaloniaApp() =>
-        AppBuilder.Configure<App>()
-                  .UsePlatformDetect()
-                  .WithInterFont()
-                  .LogToTrace();
 }

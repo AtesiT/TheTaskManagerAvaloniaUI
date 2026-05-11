@@ -2,217 +2,319 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:DiplomaTaskManager"
         x:Class="DiplomaTaskManager.MainWindow"
-        x:DataType="local:MainViewModel"
         Title="📋 DiplomaTaskManager"
-        Width="820" Height="620"
-        MinWidth="600" MinHeight="440"
+        Width="900" Height="660"
+        MinWidth="600" MinHeight="480"
         WindowStartupLocation="CenterScreen"
-        Background="#1E1E2E">
+        Background="#F5F5F5"
+        RequestedThemeVariant="Light">
 
   <Window.Styles>
-    <Style Selector="TextBlock.done">
-      <Setter Property="TextDecorations" Value="Strikethrough"/>
-      <Setter Property="Opacity"         Value="0.45"/>
-    </Style>
 
     <Style Selector="Border.card">
-      <Setter Property="Background"   Value="#2A2A3E"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding"      Value="12,8"/>
-      <Setter Property="Margin"       Value="0,4"/>
+      <Setter Property="Background" Value="#FFFFFF"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="14,10"/>
+      <Setter Property="Margin" Value="0,4"/>
+      <Setter Property="BorderBrush" Value="#E0E0E0"/>
+      <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
-    <Style Selector="TextBox.field">
-      <Setter Property="Background"   Value="#2A2A3E"/>
-      <Setter Property="Foreground"   Value="#CDD6F4"/>
-      <Setter Property="BorderBrush"  Value="#45475A"/>
-      <Setter Property="CornerRadius" Value="6"/>
-      <Setter Property="Padding"      Value="8,6"/>
+    <!-- Панели -->
+    <Style Selector="Border.panel">
+      <Setter Property="Background" Value="#FFFFFF"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Padding" Value="20"/>
+      <Setter Property="BorderBrush" Value="#E0E0E0"/>
+      <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
-    <Style Selector="Button.add">
-      <Setter Property="Background"   Value="#89B4FA"/>
-      <Setter Property="Foreground"   Value="#1E1E2E"/>
-      <Setter Property="FontWeight"   Value="SemiBold"/>
-      <Setter Property="CornerRadius" Value="6"/>
-      <Setter Property="Padding"      Value="16,8"/>
-      <Setter Property="Cursor"       Value="Hand"/>
+    <!-- Текстовые поля (TextBox) -->
+    <Style Selector="TextBox">
+      <Setter Property="Foreground" Value="#212121"/>
+      <Setter Property="CornerRadius" Value="7"/>
+      <Setter Property="Padding" Value="10,7"/>
+      <Setter Property="Margin" Value="0,2,0,8"/>
+      <Setter Property="SelectionBrush" Value="#90CAF9"/>
+      <Setter Property="SelectionForegroundBrush" Value="#212121"/>
+      <Setter Property="CaretBrush" Value="#1976D2"/>
+      <Setter Property="Background" Value="#FAFAFA"/>
+      <Setter Property="BorderBrush" Value="#BDBDBD"/>
     </Style>
-    <Style Selector="Button.add:disabled /template/ ContentPresenter">
-      <Setter Property="Background"             Value="#45475A"/>
-      <Setter Property="TextElement.Foreground" Value="#6C7086"/>
+    <Style Selector="TextBox /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="#FAFAFA"/>
+      <Setter Property="BorderBrush" Value="#BDBDBD"/>
+    </Style>
+    
+    <!-- Фикс цветов TextBox при фокусе и наведении -->
+    <Style Selector="TextBox:focus">
+      <Setter Property="Foreground" Value="#212121"/>
+    </Style>
+    <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="#FFFFFF"/>
+      <Setter Property="BorderBrush" Value="#1976D2"/>
+    </Style>
+    
+    <Style Selector="TextBox:pointerover">
+      <Setter Property="Foreground" Value="#212121"/>
+    </Style>
+    <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="#FAFAFA"/>
+      <Setter Property="BorderBrush" Value="#9E9E9E"/>
     </Style>
 
+    <!-- Выбор даты (Дедлайн) -->
+    <Style Selector="CalendarDatePicker">
+      <Setter Property="Foreground" Value="#212121"/>
+    </Style>
+    <Style Selector="CalendarDatePicker /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="#FAFAFA"/>
+      <Setter Property="BorderBrush" Value="#BDBDBD"/>
+    </Style>
+    <Style Selector="CalendarDatePicker:pointerover /template/ Border#PART_BorderElement">
+      <Setter Property="BorderBrush" Value="#9E9E9E"/>
+    </Style>
+    <Style Selector="CalendarDatePicker:focus /template/ Border#PART_BorderElement">
+      <Setter Property="BorderBrush" Value="#1976D2"/>
+    </Style>
+
+    <!-- Выпадающий список (Исполнитель) -->
+    <Style Selector="ComboBox">
+      <Setter Property="Foreground" Value="#212121"/>
+    </Style>
+    <Style Selector="ComboBox /template/ Border#Background">
+      <Setter Property="Background" Value="#FAFAFA"/>
+      <Setter Property="BorderBrush" Value="#BDBDBD"/>
+    </Style>
+    <Style Selector="ComboBox:pointerover /template/ Border#Background">
+      <Setter Property="BorderBrush" Value="#9E9E9E"/>
+    </Style>
+    <Style Selector="ComboBox:focus /template/ Border#Background">
+      <Setter Property="BorderBrush" Value="#1976D2"/>
+    </Style>
+
+    <!-- Метки над полями -->
+    <Style Selector="TextBlock.lbl">
+      <Setter Property="Foreground" Value="#616161"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Margin" Value="0,0,0,2"/>
+    </Style>
+
+    <!-- Primary Button (Синяя кнопка) -->
+    <Style Selector="Button.primary">
+      <Setter Property="Background" Value="#1976D2"/>
+      <Setter Property="Foreground" Value="#FFFFFF"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="CornerRadius" Value="7"/>
+      <Setter Property="Padding" Value="16,9"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#1565C0"/>
+      <Setter Property="TextElement.Foreground" Value="#FFFFFF"/>
+    </Style>
+    <Style Selector="Button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#0D47A1"/>
+      <Setter Property="TextElement.Foreground" Value="#FFFFFF"/>
+    </Style>
+
+    <!-- Ghost Button (Прозрачная кнопка с рамкой) -->
+    <Style Selector="Button.ghost">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="#1976D2"/>
+      <Setter Property="BorderBrush" Value="#BDBDBD"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="7"/>
+      <Setter Property="Padding" Value="14,7"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Button.ghost:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#E3F2FD"/>
+      <Setter Property="BorderBrush" Value="#BDBDBD"/>
+      <Setter Property="TextElement.Foreground" Value="#1976D2"/>
+    </Style>
+    <Style Selector="Button.ghost:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#BBDEFB"/>
+      <Setter Property="BorderBrush" Value="#BDBDBD"/>
+      <Setter Property="TextElement.Foreground" Value="#1976D2"/>
+    </Style>
+
+    <!-- Delete Button (Кнопка удаления) -->
     <Style Selector="Button.del">
       <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="Foreground" Value="#F38BA8"/>
-      <Setter Property="Padding"    Value="6,4"/>
-      <Setter Property="Cursor"     Value="Hand"/>
+      <Setter Property="Foreground" Value="#D32F2F"/>
+      <Setter Property="Padding" Value="6,4"/>
+      <Setter Property="Cursor" Value="Hand"/>
     </Style>
+    <Style Selector="Button.del:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#FFEBEE"/>
+      <Setter Property="TextElement.Foreground" Value="#D32F2F"/>
+    </Style>
+    <Style Selector="Button.del:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#FFCDD2"/>
+      <Setter Property="TextElement.Foreground" Value="#D32F2F"/>
+    </Style>
+
+    <!-- Состояния текста -->
+    <Style Selector="TextBlock.done">
+      <Setter Property="TextDecorations" Value="Strikethrough"/>
+      <Setter Property="Foreground" Value="#9E9E9E"/>
+    </Style>
+
+    <Style Selector="TextBlock.err">
+      <Setter Property="Foreground" Value="#D32F2F"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Margin" Value="0,2"/>
+    </Style>
+
+    <Style Selector="TextBlock.ok">
+      <Setter Property="Foreground" Value="#388E3C"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Margin" Value="0,2"/>
+    </Style>
+
   </Window.Styles>
 
-  <Grid RowDefinitions="Auto,*" Margin="16">
+  <ContentControl Content="{Binding CurrentView}">
+    <ContentControl.DataTemplates>
 
-    <Border Grid.Row="0"
-            Background="#181825"
-            CornerRadius="12"
-            Padding="16"
-            Margin="0,0,0,12">
-      <StackPanel Spacing="10">
-
-        <TextBlock Text="Новая задача"
-                   FontSize="15" FontWeight="SemiBold"
-                   Foreground="#CDD6F4"/>
-
-        <Grid ColumnDefinitions="*,12,*">
-          <StackPanel Grid.Column="0" Spacing="4">
-            <TextBlock Text="Заголовок" Foreground="#A6ADC8" FontSize="12"/>
-            <TextBox Classes="field"
-                     Text="{Binding NewTitle}"
-                     Watermark="Что нужно сделать?"/>
-          </StackPanel>
-          <StackPanel Grid.Column="2" Spacing="4">
-            <TextBlock Text="Исполнитель" Foreground="#A6ADC8" FontSize="12"/>
-            <TextBox Classes="field"
-                     Text="{Binding NewAssignee}"
-                     Watermark="Имя сотрудника"/>
-          </StackPanel>
-        </Grid>
-
-        <StackPanel Spacing="4" Margin="0,4,0,0">
-          <TextBlock Text="Описание" Foreground="#A6ADC8" FontSize="12"/>
-          <TextBox Classes="field"
-                  Text="{Binding NewDescription}"
-                  Watermark="Подробности задачи (необязательно)"
-                  Height="60"
-                  AcceptsReturn="True"
-                  TextWrapping="Wrap"/>
-        </StackPanel>
-
-        <Grid ColumnDefinitions="*,12,Auto">
-          <StackPanel Grid.Column="0" Spacing="4">
-            <TextBlock Text="Дедлайн" Foreground="#A6ADC8" FontSize="12"/>
-            <CalendarDatePicker SelectedDate="{Binding NewDeadline}"
-                                HorizontalAlignment="Stretch"
-                                Background="#2A2A3E"
-                                Foreground="#CDD6F4"
-                                BorderBrush="#45475A"/>
-          </StackPanel>
-          <Button Grid.Column="2"
-                  Classes="add"
-                  Content="＋  Добавить"
-                  Command="{Binding AddTaskCommand}"
-                  VerticalAlignment="Bottom"/>
-        </Grid>
-
-      </StackPanel>
-    </Border>
-
-    <Border Grid.Row="1"
-            Background="#181825"
-            CornerRadius="12"
-            Padding="12">
-      <Grid RowDefinitions="Auto,*">
-
-        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="4,0,4,8">
-          <TextBlock Grid.Column="0"
-                     Text="Задачи"
-                     FontSize="15" FontWeight="SemiBold"
-                     Foreground="#CDD6F4"/>
-          <Border Grid.Column="1"
-                  Background="#313244" CornerRadius="10" Padding="8,2">
-            <TextBlock Foreground="#A6ADC8" FontSize="12">
-              <Run Text="{Binding Tasks.Count}"/>
-              <Run Text=" задач"/>
-            </TextBlock>
+      <DataTemplate DataType="local:LoginViewModel">
+        <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+          <Border Background="#FFFFFF" CornerRadius="14" Padding="36" Width="400" BorderBrush="#E0E0E0" BorderThickness="1">
+            <StackPanel Spacing="0">
+              <TextBlock Text="📋 DiplomaTaskManager" FontSize="24" FontWeight="Bold" Foreground="#212121" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+              <TextBlock Text="Вход в систему" FontSize="13" Foreground="#757575" HorizontalAlignment="Center" Margin="0,0,0,28"/>
+              <TextBlock Classes="lbl" Text="Логин"/>
+              <TextBox Text="{Binding Login}" Watermark="Введите логин"/>
+              <TextBlock Classes="lbl" Text="Пароль"/>
+              <TextBox Text="{Binding Password}" PasswordChar="●" Watermark="Введите пароль"/>
+              <TextBlock Classes="err" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+              <Button Classes="primary" Content="Войти" Command="{Binding DoLoginCommand}" HorizontalAlignment="Stretch" Margin="0,12,0,8"/>
+              <Button Classes="ghost" Content="Создать аккаунт" Command="{Binding GoToRegisterCommand}" HorizontalAlignment="Stretch"/>
+            </StackPanel>
           </Border>
         </Grid>
+      </DataTemplate>
 
-        <StackPanel Grid.Row="1"
-                    IsVisible="{Binding !Tasks.Count}"
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Center"
-                    Spacing="8">
-          <TextBlock Text="📭" FontSize="48" HorizontalAlignment="Center"/>
-          <TextBlock Text="Задач пока нет"
-                     Foreground="#585B70" FontSize="14"
-                     HorizontalAlignment="Center"/>
-        </StackPanel>
+      <DataTemplate DataType="local:RegisterViewModel">
+        <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+          <Border Background="#FFFFFF" CornerRadius="14" Padding="36" Width="400" BorderBrush="#E0E0E0" BorderThickness="1">
+            <StackPanel Spacing="0">
+              <TextBlock Text="Регистрация" FontSize="22" FontWeight="Bold" Foreground="#212121" HorizontalAlignment="Center" Margin="0,0,0,24"/>
+              <TextBlock Classes="lbl" Text="ФИО"/>
+              <TextBox Text="{Binding FullName}" Watermark="Иванов Иван Иванович"/>
+              <TextBlock Classes="lbl" Text="Логин"/>
+              <TextBox Text="{Binding Login}" Watermark="Уникальный логин"/>
+              <TextBlock Classes="lbl" Text="Пароль"/>
+              <TextBox Text="{Binding Password}" PasswordChar="●" Watermark="Придумайте пароль"/>
+              <TextBlock Classes="err" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+              <TextBlock Classes="ok" Text="{Binding Success}" IsVisible="{Binding Success, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+              <Button Classes="primary" Content="Зарегистрироваться" Command="{Binding RegisterCommand}" HorizontalAlignment="Stretch" Margin="0,12,0,8"/>
+              <Button Classes="ghost" Content="← Назад к входу" Command="{Binding BackToLoginCommand}" HorizontalAlignment="Stretch"/>
+            </StackPanel>
+          </Border>
+        </Grid>
+      </DataTemplate>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-          <ItemsControl ItemsSource="{Binding Tasks}">
-            <ItemsControl.ItemTemplate>
+      <DataTemplate DataType="local:MainViewModel">
+        <Grid RowDefinitions="Auto,*" Margin="16">
 
-              <DataTemplate DataType="local:TaskItem">
-                <Border Classes="card">
-                  <Grid ColumnDefinitions="Auto,*,Auto">
+          <Border Grid.Row="0" Classes="panel" Margin="0,0,0,12">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <TextBlock FontSize="18" VerticalAlignment="Center" Foreground="#212121" Text="{Binding CurrentUser.IsAdmin, Converter={x:Static local:BoolToRoleConverter.Instance}}"/>
+                <TextBlock FontSize="15" FontWeight="SemiBold" Foreground="#1976D2" VerticalAlignment="Center" Text="{Binding CurrentUser.FullName}"/>
+              </StackPanel>
+              <Button Grid.Column="1" Classes="ghost" Content="Выйти" Command="{Binding LogoutCommand}"/>
+            </Grid>
+          </Border>
 
-                    <CheckBox Grid.Column="0"
-                              IsChecked="{Binding IsCompleted}"
-                              VerticalAlignment="Center"
-                              Margin="0,0,10,0">
-                      <CheckBox.Command>
-                        <Binding Path="DataContext.ToggleTaskCommand"
-                                 RelativeSource="{RelativeSource AncestorType=Window}"/>
-                      </CheckBox.Command>
-                      <CheckBox.CommandParameter>
-                        <Binding/>
-                      </CheckBox.CommandParameter>
-                    </CheckBox>
+          <Grid Grid.Row="1" RowDefinitions="Auto,*">
 
-                    <StackPanel Grid.Column="1"
-                                VerticalAlignment="Center"
-                                Spacing="3">
-                      <TextBlock Text="{Binding Title}"
-                                 FontSize="14" FontWeight="Medium"
-                                 Foreground="#CDD6F4"
-                                 Classes.done="{Binding IsCompleted}"
-                                 TextTrimming="CharacterEllipsis"/>
-                      <TextBlock Text="{Binding Description}"
-                                FontSize="11"
-                                Foreground="#6C7086"
-                                TextWrapping="Wrap"
-                                MaxLines="2"
-                                IsVisible="{Binding Description,
-                                Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-                      <StackPanel Orientation="Horizontal" Spacing="14">
-                        <TextBlock FontSize="11" Foreground="#89B4FA">
-                          <Run Text="👤 "/>
-                          <Run Text="{Binding Assignee}"/>
-                        </TextBlock>
-                        <TextBlock FontSize="11" Foreground="#A6E3A1">
-                          <Run Text="📅 "/>
-                          <Run Text="{Binding Deadline,
-                                     StringFormat=\{0:dd.MM.yyyy\}}"/>
-                        </TextBlock>
-                      </StackPanel>
-                    </StackPanel>
+            <Border Grid.Row="0" Classes="panel" Margin="0,0,0,12" IsVisible="{Binding CurrentUser.IsAdmin}">
+              <StackPanel Spacing="8">
+                <TextBlock Text="Новая задача" FontSize="14" FontWeight="SemiBold" Foreground="#212121"/>
+                <TextBlock Classes="lbl" Text="Заголовок"/>
+                <TextBox Text="{Binding NewTitle}" Watermark="Что нужно сделать?"/>
+                <TextBlock Classes="lbl" Text="Описание (необязательно)"/>
+                <TextBox Text="{Binding NewDescription}" Watermark="Подробности..." Height="58" AcceptsReturn="True" TextWrapping="Wrap"/>
+                <TextBlock Classes="lbl" Text="Исполнитель"/>
+                <ComboBox ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedAssignee}" PlaceholderText="Выберите сотрудника" HorizontalAlignment="Stretch">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Foreground="#212121">
+                        <Run Text="{Binding FullName}"/>
+                      </TextBlock>
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock Classes="lbl" Text="Дедлайн"/>
+                <CalendarDatePicker SelectedDate="{Binding NewDeadline}" HorizontalAlignment="Left"/>
+                <Button Classes="primary" Content="＋ Добавить задачу" Command="{Binding AddTaskCommand}" HorizontalAlignment="Stretch"/>
+              </StackPanel>
+            </Border>
 
-                    <Button Grid.Column="2"
-                            Classes="del"
-                            Content="🗑"
-                            FontSize="16"
-                            VerticalAlignment="Center"
-                            ToolTip.Tip="Удалить задачу">
-                      <Button.Command>
-                        <Binding Path="DataContext.DeleteTaskCommand"
-                                 RelativeSource="{RelativeSource AncestorType=Window}"/>
-                      </Button.Command>
-                      <Button.CommandParameter>
-                        <Binding/>
-                      </Button.CommandParameter>
-                    </Button>
+            <Border Grid.Row="1" Classes="panel">
+              <Grid RowDefinitions="Auto,*">
 
-                  </Grid>
-                </Border>
-              </DataTemplate>
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+                  <TextBlock Grid.Column="0" Text="Задачи" FontSize="14" FontWeight="SemiBold" Foreground="#212121"/>
+                  <Border Grid.Column="1" Background="#E3F2FD" CornerRadius="10" Padding="8,2">
+                    <TextBlock Foreground="#1976D2" FontSize="12">
+                      <Run Text="{Binding Tasks.Count}"/>
+                      <Run Text=" задач"/>
+                    </TextBlock>
+                  </Border>
+                </Grid>
 
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
-        </ScrollViewer>
+                <StackPanel Grid.Row="1" IsVisible="{Binding !Tasks.Count}" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+                  <TextBlock Text="📭" FontSize="48" HorizontalAlignment="Center" Foreground="#212121"/>
+                  <TextBlock Text="Задач пока нет" Foreground="#9E9E9E" FontSize="13" HorizontalAlignment="Center"/>
+                </StackPanel>
 
-      </Grid>
-    </Border>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                  <ItemsControl ItemsSource="{Binding Tasks}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate DataType="local:TaskItem">
+                        <Border Classes="card">
+                          <Grid ColumnDefinitions="Auto,*,Auto">
 
-  </Grid>
+                            <CheckBox Grid.Column="0" IsChecked="{Binding IsCompleted, Mode=TwoWay}" VerticalAlignment="Top" Margin="0,2,12,0"/>
+
+                            <StackPanel Grid.Column="1" Spacing="4">
+                              <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="Medium" Foreground="#212121" Classes.done="{Binding IsCompleted}" TextTrimming="CharacterEllipsis"/>
+                              <TextBlock Text="{Binding Description}" FontSize="12" Foreground="#757575" TextWrapping="Wrap" MaxLines="2" IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                              <StackPanel Orientation="Horizontal" Spacing="14">
+                                <TextBlock FontSize="11" Foreground="#1976D2" IsVisible="{Binding AssigneeUser, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                  <Run Text="👤 "/>
+                                  <Run Text="{Binding AssigneeUser.FullName}"/>
+                                </TextBlock>
+                                <TextBlock FontSize="11" Foreground="#388E3C">
+                                  <Run Text="📅 "/>
+                                  <Run Text="{Binding Deadline, StringFormat=\{0:dd.MM.yyyy\}}"/>
+                                </TextBlock>
+                              </StackPanel>
+                            </StackPanel>
+
+                            <Button Grid.Column="2" Classes="del" Content="🗑" FontSize="15" VerticalAlignment="Top" ToolTip.Tip="Удалить задачу" IsVisible="{Binding $parent[Window].DataContext.CurrentUser.IsAdmin}" Click="DeleteTask_Click" Tag="{Binding}"/>
+
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </ScrollViewer>
+
+              </Grid>
+            </Border>
+
+          </Grid>
+        </Grid>
+      </DataTemplate>
+
+    </ContentControl.DataTemplates>
+  </ContentControl>
+
 </Window>

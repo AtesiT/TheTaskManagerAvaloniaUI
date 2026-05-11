@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DiplomaTaskManager")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+66d97182299000353954227cc1a36de7c1d147bb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+925d007c1f33f43ceda99f5b79b071f3b7a887c9")]
 [assembly: System.Reflection.AssemblyProductAttribute("DiplomaTaskManager")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DiplomaTaskManager")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
